@@ -108,6 +108,15 @@
       "action": "add",
       "args": {
         "uri": "./ipinfo/ipinfo_lite.csv",
+        "metadataList": {
+          "cloudflare": ["cloudflare.com"],
+          "facebook": ["facebook.com", "fb.com", "instagram.com", "meta.com", "whatsapp.com"],
+          "fastly": ["fastly.com"],
+          "google": ["gfiber.com", "google.ch", "google.com"],
+          "netflix": ["netflix.com"],
+          "telegram": ["telegram.org"],
+          "twitter": ["twitter.com", "x.com"]
+        },
         "wantedList": {
           "cloudflare": [
             "AS402542",

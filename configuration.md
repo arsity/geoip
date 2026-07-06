@@ -312,8 +312,11 @@
 - **action**：（必须）操作类型，值为 `add`（添加 IP 地址）或 `remove`（移除 IP 地址）
 - **args**：（可选）
   - **uri**：（可选）IPInfo Lite CSV 文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL。
+  - **metadataList**：（可选，对象）根据 IPInfo Lite CSV 中的 `as_domain` 和 `as_name` 字段归类。键为类别名称，值为要匹配的域名或名称片段。
   - **wantedList**：（可选，数组或对象）指定需要的 ASN。数组形式会以 `AS12345` 作为类别名称；对象形式可把多个 ASN 聚合到自定义类别。
   - **onlyIPType**：（可选）只处理的 IP 地址类型，值为 `ipv4` 或 `ipv6`。
+
+> `metadataList` 的优先级高于 `wantedList`。如果某条 IPInfo 记录同时被 `metadataList` 和 hard-coded ASN `wantedList` 命中，但归属类别不同，则以 IPInfo 的 `metadataList` 命中结果为准；只有未命中 `metadataList` 时才使用 `wantedList` 兜底。
 
 ```jsonc
 // 默认使用文件：
@@ -341,6 +344,10 @@
   "action": "add",
   "args": {
     "uri": "./ipinfo/ipinfo_lite.csv",
+    "metadataList": {
+      "cloudflare": ["cloudflare.com"],
+      "google": ["google.com", "google.ch", "gfiber.com"]
+    },
     "wantedList": {
       "cloudflare": ["AS13335"],
       "google": ["AS15169", "AS36040", "AS396982"]

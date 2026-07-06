@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/Loyalsoldier/geoip/lib"
@@ -32,9 +33,10 @@ func init() {
 
 func newIPInfoLiteASNCSVIn(action lib.Action, data json.RawMessage) (lib.InputConverter, error) {
 	var tmp struct {
-		URI        string                 `json:"uri"`
-		Want       lib.WantedListExtended `json:"wantedList"`
-		OnlyIPType lib.IPType             `json:"onlyIPType"`
+		URI          string                 `json:"uri"`
+		Want         lib.WantedListExtended `json:"wantedList"`
+		MetadataList map[string][]string    `json:"metadataList"`
+		OnlyIPType   lib.IPType             `json:"onlyIPType"`
 	}
 
 	if len(data) > 0 {
@@ -80,23 +82,41 @@ func newIPInfoLiteASNCSVIn(action lib.Action, data json.RawMessage) (lib.InputCo
 		wantList[asn] = []string{"AS" + asn}
 	}
 
+	metadataList := make(map[string][]string) // map[listname][]as_domain_or_as_name_pattern
+	for list, patterns := range tmp.MetadataList {
+		list = strings.ToUpper(strings.TrimSpace(list))
+		if list == "" {
+			continue
+		}
+
+		for _, pattern := range patterns {
+			pattern = strings.ToLower(strings.TrimSpace(pattern))
+			if pattern == "" {
+				continue
+			}
+			metadataList[list] = append(metadataList[list], pattern)
+		}
+	}
+
 	return &IPInfoLiteASNCSVIn{
-		Type:        TypeIPInfoLiteASNCSVIn,
-		Action:      action,
-		Description: DescIPInfoLiteASNCSVIn,
-		URI:         tmp.URI,
-		Want:        wantList,
-		OnlyIPType:  tmp.OnlyIPType,
+		Type:         TypeIPInfoLiteASNCSVIn,
+		Action:       action,
+		Description:  DescIPInfoLiteASNCSVIn,
+		URI:          tmp.URI,
+		Want:         wantList,
+		MetadataList: metadataList,
+		OnlyIPType:   tmp.OnlyIPType,
 	}, nil
 }
 
 type IPInfoLiteASNCSVIn struct {
-	Type        string
-	Action      lib.Action
-	Description string
-	URI         string
-	Want        map[string][]string
-	OnlyIPType  lib.IPType
+	Type         string
+	Action       lib.Action
+	Description  string
+	URI          string
+	Want         map[string][]string
+	MetadataList map[string][]string
+	OnlyIPType   lib.IPType
 }
 
 func (g *IPInfoLiteASNCSVIn) GetType() string {
@@ -188,33 +208,91 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 		}
 		asnBare := strings.TrimPrefix(strings.ToLower(asnRaw), "as")
 
-		switch len(g.Want) {
-		case 0: // it means user wants all ASNs
-			asn := strings.ToUpper(asnRaw) // default list name is in "AS12345" format
-			entry, got := entries[asn]
-			if !got {
-				entry = lib.NewEntry(asn)
+		// IPInfo metadata is the preferred source for service ownership.
+		// Hard-coded ASN lists are only used as a fallback when metadata does not match.
+		if metadataLists := g.matchMetadata(record); len(metadataLists) > 0 {
+			for _, listName := range metadataLists {
+				if err := addPrefixToEntries(entries, listName, strings.TrimSpace(record[0])); err != nil {
+					return err
+				}
 			}
-			if err := entry.AddPrefix(strings.TrimSpace(record[0])); err != nil {
+			continue
+		}
+
+		if len(g.Want) == 0 { // it means user wants all ASNs
+			asn := strings.ToUpper(asnRaw) // default list name is in "AS12345" format
+			if err := addPrefixToEntries(entries, asn, strings.TrimSpace(record[0])); err != nil {
 				return err
 			}
-			entries[asn] = entry
+			continue
+		}
 
-		default: // it means user wants specific ASNs or customized lists with specific ASNs
-			if listArr, found := g.Want[asnBare]; found {
-				for _, listName := range listArr {
-					entry, got := entries[listName]
-					if !got {
-						entry = lib.NewEntry(listName)
-					}
-					if err := entry.AddPrefix(strings.TrimSpace(record[0])); err != nil {
-						return err
-					}
-					entries[listName] = entry
+		// it means user wants specific ASNs or customized lists with specific ASNs
+		if listArr, found := g.Want[asnBare]; found {
+			for _, listName := range listArr {
+				if err := addPrefixToEntries(entries, listName, strings.TrimSpace(record[0])); err != nil {
+					return err
 				}
 			}
 		}
 	}
+
+	return nil
+}
+
+func (g *IPInfoLiteASNCSVIn) matchMetadata(record []string) []string {
+	if len(g.MetadataList) == 0 {
+		return nil
+	}
+
+	asName := ""
+	if len(record) > 6 {
+		asName = strings.ToLower(strings.TrimSpace(record[6]))
+	}
+	asDomain := ""
+	if len(record) > 7 {
+		asDomain = strings.ToLower(strings.TrimSpace(record[7]))
+	}
+	if asName == "" && asDomain == "" {
+		return nil
+	}
+
+	matched := make([]string, 0)
+	for listName, patterns := range g.MetadataList {
+		for _, pattern := range patterns {
+			if matchIPInfoASNMetadata(pattern, asDomain, asName) {
+				matched = append(matched, listName)
+				break
+			}
+		}
+	}
+	slices.Sort(matched)
+
+	return matched
+}
+
+func matchIPInfoASNMetadata(pattern string, asDomain string, asName string) bool {
+	pattern = strings.ToLower(strings.TrimSpace(pattern))
+	if pattern == "" {
+		return false
+	}
+
+	if strings.Contains(pattern, ".") {
+		return asDomain == pattern || strings.HasSuffix(asDomain, "."+pattern)
+	}
+
+	return strings.Contains(asDomain, pattern) || strings.Contains(asName, pattern)
+}
+
+func addPrefixToEntries(entries map[string]*lib.Entry, listName string, prefix string) error {
+	entry, got := entries[listName]
+	if !got {
+		entry = lib.NewEntry(listName)
+	}
+	if err := entry.AddPrefix(prefix); err != nil {
+		return err
+	}
+	entries[listName] = entry
 
 	return nil
 }
