@@ -13,7 +13,7 @@ which make it possible to support more formats for the project.
 
 const (
 	TypeIPInfoCountryMMDBOut = "ipinfoCountryMMDB"
-	DescIPInfoCountryMMDBOut = "Convert data to IPInfo country mmdb database format"
+	DescIPInfoCountryMMDBOut = "Convert data to MaxMind-compatible mmdb format with IPInfo metadata"
 )
 
 func init() {

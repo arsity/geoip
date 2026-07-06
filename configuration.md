@@ -19,7 +19,9 @@
 - **clashRuleSetClassical**：classical 类型的 Clash RuleSet
 - **cutter**：用于裁剪前置步骤中的数据
 - **dbipCountryMMDB**：DB-IP country mmdb 数据格式（`dbip-country-lite.mmdb`）
-- **ipinfoCountryMMDB**：IPInfo country mmdb 数据格式（`country.mmdb`）
+- **ipinfoCountryMMDB**：IPInfo Lite mmdb 数据格式（`ipinfo_lite.mmdb`）
+- **ipinfoLiteASNCSV**：IPInfo Lite CSV 数据格式（ASN 数据，`ipinfo_lite.csv`）
+- **ipinfoLiteCountryCSV**：IPInfo Lite CSV 数据格式（国家/地区数据，`ipinfo_lite.csv`）
 - **json**：JSON 数据格式
 - **maxmindGeoLite2ASNCSV**：MaxMind GeoLite2 ASN CSV 数据格式（`GeoLite2-ASN-CSV.zip`）
 - **maxmindGeoLite2CountryCSV**：MaxMind GeoLite2 country CSV 数据格式（`GeoLite2-Country-CSV.zip`）
@@ -37,7 +39,7 @@
 - **clashRuleSet**：ipcidr 类型的 Clash RuleSet
 - **clashRuleSetClassical**：classical 类型的 Clash RuleSet
 - **dbipCountryMMDB**：DB-IP country mmdb 数据格式（`dbip-country-lite.mmdb`）
-- **ipinfoCountryMMDB**：IPInfo country mmdb 数据格式（`country.mmdb`）
+- **ipinfoCountryMMDB**：使用 IPInfo 元数据补全的 MaxMind-compatible country mmdb 数据格式（`Country.mmdb`）
 - **lookup**：从指定的列表中查找指定的 IP 或 CIDR
 - **maxmindMMDB**：MaxMind GeoLite2 country mmdb 数据格式（`GeoLite2-Country.mmdb`）
 - **mihomoMRS**：mihomo MRS 数据格式（`geoip-cn.mrs`）
@@ -227,13 +229,13 @@
 - **type**：（必须）输入格式的名称
 - **action**：（必须）操作类型，值为 `add`（添加 IP 地址）或 `remove`（移除 IP 地址）
 - **args**：（可选）
-  - **uri**：（可选）IPInfo country MMDB 格式文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL。
+  - **uri**：（可选）IPInfo Lite MMDB 格式文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL。
   - **wantedList**：（可选）指定需要的类别/文件。
   - **onlyIPType**：（可选）只处理的 IP 地址类型，值为 `ipv4` 或 `ipv6`。
 
 ```jsonc
 // 默认使用文件：
-// ./ipinfo/country.mmdb
+// ./ipinfo/ipinfo_lite.mmdb
 {
   "type": "ipinfoCountryMMDB",
   "action": "add"       // 添加 IP 地址
@@ -245,7 +247,7 @@
   "type": "ipinfoCountryMMDB",
   "action": "add",       // 添加 IP 地址
   "args": {
-    "uri": "./ipinfo/country.mmdb"
+    "uri": "./ipinfo/ipinfo_lite.mmdb"
   }
 }
 ```
@@ -270,6 +272,79 @@
     "uri": "https://example.com/my.mmdb",
     "wantedList": ["cn", "us", "jp"],    // 只移除名为 cn、us、jp 这三个类别的 IPv4 地址
     "onlyIPType": "ipv4"                 // 只移除 IPv4 地址
+  }
+}
+```
+
+### **ipinfoLiteCountryCSV**
+
+- **type**：（必须）输入格式的名称
+- **action**：（必须）操作类型，值为 `add`（添加 IP 地址）或 `remove`（移除 IP 地址）
+- **args**：（可选）
+  - **uri**：（可选）IPInfo Lite CSV 文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL。
+  - **wantedList**：（可选，数组）指定需要的国家/地区类别。
+  - **onlyIPType**：（可选）只处理的 IP 地址类型，值为 `ipv4` 或 `ipv6`。
+
+```jsonc
+// 默认使用文件：
+// ./ipinfo/ipinfo_lite.csv
+{
+  "type": "ipinfoLiteCountryCSV",
+  "action": "add"       // 添加 IP 地址
+}
+```
+
+```jsonc
+{
+  "type": "ipinfoLiteCountryCSV",
+  "action": "add",
+  "args": {
+    "uri": "./ipinfo/ipinfo_lite.csv",
+    "wantedList": ["cn", "us", "jp"],
+    "onlyIPType": "ipv4"
+  }
+}
+```
+
+### **ipinfoLiteASNCSV**
+
+- **type**：（必须）输入格式的名称
+- **action**：（必须）操作类型，值为 `add`（添加 IP 地址）或 `remove`（移除 IP 地址）
+- **args**：（可选）
+  - **uri**：（可选）IPInfo Lite CSV 文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL。
+  - **wantedList**：（可选，数组或对象）指定需要的 ASN。数组形式会以 `AS12345` 作为类别名称；对象形式可把多个 ASN 聚合到自定义类别。
+  - **onlyIPType**：（可选）只处理的 IP 地址类型，值为 `ipv4` 或 `ipv6`。
+
+```jsonc
+// 默认使用文件：
+// ./ipinfo/ipinfo_lite.csv
+{
+  "type": "ipinfoLiteASNCSV",
+  "action": "add"       // 添加 IP 地址
+}
+```
+
+```jsonc
+{
+  "type": "ipinfoLiteASNCSV",
+  "action": "add",
+  "args": {
+    "uri": "./ipinfo/ipinfo_lite.csv",
+    "wantedList": ["AS13335", "AS15169"]
+  }
+}
+```
+
+```jsonc
+{
+  "type": "ipinfoLiteASNCSV",
+  "action": "add",
+  "args": {
+    "uri": "./ipinfo/ipinfo_lite.csv",
+    "wantedList": {
+      "cloudflare": ["AS13335"],
+      "google": ["AS15169", "AS36040", "AS396982"]
+    }
   }
 }
 ```
@@ -1127,6 +1202,8 @@
 
 ### **ipinfoCountryMMDB**
 
+使用 IPInfo MMDB 作为元数据来源，输出 MaxMind GeoLite2 Country 兼容字段的 MMDB 文件。
+
 - **type**：（必须）输入格式的名称
 - **action**：（必须）操作类型，值必须为 `output`
 - **args**：（可选）
@@ -1136,17 +1213,17 @@
   - **wantedList**：（可选，数组）指定需要输出的类别
   - **excludedList**：（可选，数组）指定不需要输出的类别
   - **overwriteList**：（可选，数组）指定最后写入的类别（原因见👇）
-  - **sourceMMDBURI**：（可选）指定用于补全本项目生成的 MMDB 格式文件所缺失的额外信息的 IPInfo 官方 country MMDB 格式文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL（原因见👇）
+  - **sourceMMDBURI**：（可选）指定用于补全本项目生成的 MaxMind-compatible MMDB 格式文件所缺失的额外信息的 IPInfo Lite MMDB 文件路径，可为本地文件路径或远程 `http`、`https` 文件 URL（原因见👇）
 
-> 由于 IPInfo mmdb 文件格式的限制，当不同列表的 IP 或 CIDR 数据有交集或重复项时，后写入的列表的 IP 或 CIDR 数据会覆盖（overwrite）之前已写入的列表的数据。譬如，IP `1.1.1.1` 同属于列表 `AU` 和列表 `Cloudflare`。如果 `Cloudflare` 在 `AU` 之后写入，则 IP `1.1.1.1` 最终归属于列表 `Cloudflare`。
+> 由于 MMDB 文件格式的限制，当不同列表的 IP 或 CIDR 数据有交集或重复项时，后写入的列表的 IP 或 CIDR 数据会覆盖（overwrite）之前已写入的列表的数据。譬如，IP `1.1.1.1` 同属于列表 `AU` 和列表 `Cloudflare`。如果 `Cloudflare` 在 `AU` 之后写入，则 IP `1.1.1.1` 最终归属于列表 `Cloudflare`。
 >
 > 为了确保某些指定的列表、被修改的列表一定囊括属于它的所有 IP 或 CIDR 数据，可在 output 输出格式为 `ipinfoCountryMMDB` 的配置中增加选项 `overwriteList`，该选项中指定的列表会在最后逐一写入，列表中最后一项优先级最高。若已设置选项 `wantedList`，则无需设置 `overwriteList`。`wantedList` 中指定的列表会在最后逐一写入，列表中最后一项优先级最高。
 >
 > `wantedList`、`overwriteList`、`excludedList` 三者中，`excludedList` 优先级最高。即：若设置了选项 `excludedList`，最终不会输出存在于 `excludedList` 中的列表。
 
-> 由于本项目软件架构的限制，默认输出的 MMDB 格式文件只包含基本信息（`country` 字段，即国家/地区两位英文字母代号），不包含其他额外信息（如 IP 或 CIDR 所属的国家/地区多语种名称、所属大洲及大洲多语种名称等）。为了跟官方提供的 MMDB 格式文件保持同样丰富的信息（字段），可通过配置选项 `sourceMMDBURI` 来指定 IPInfo 官方 country MMDB 格式文件路径，为本项目生成的 MMDB 格式文件补全缺失的额外信息。
+> 默认输出的 MMDB 格式文件只包含基本信息（`country.iso_code` 字段，即国家/地区两位英文字母代号）。为了补全 `continent` 和 `country.names.en` 等字段，可通过配置选项 `sourceMMDBURI` 来指定 IPInfo Lite MMDB 文件路径，为本项目生成的 MaxMind-compatible MMDB 格式文件补全缺失的额外信息。
 >
-> 只能补全国家/地区类别的额外信息。新增类别不属于国家/地区类别，不存在于 IPInfo 官方 country MMDB 格式文件中，无法补全。
+> 只能补全国家/地区类别的额外信息。新增类别不属于国家/地区类别，不存在于 IPInfo Lite MMDB 文件中，无法补全。
 
 ```jsonc
 // 默认输出目录 ./output/ipinfo
@@ -1235,7 +1312,7 @@
     "outputName": "Country.mmdb",                 // 输出文件名为 Country.mmdb
     "excludedList": ["private"],                  // 最终不输出 private 类别
     "overwriteList": ["private" ,"cn", "google"], // 确保 cn、google 类别最后写入，且 google 比 cn 后写入。但由于 private 存在于 excludedList 中，最终不输出 private 类别
-    "sourceMMDBURI": "./ipinfo/country.mmdb"      // 用于补全生成的 MMDB 格式文件额外信息的 IPInfo 官方 country MMDB 格式文件。由于 private、google 类别不属于国家/地区类别，无法补全额外信息。
+    "sourceMMDBURI": "./ipinfo/ipinfo_lite.mmdb"  // 用于补全生成的 MaxMind-compatible MMDB 格式文件额外信息的 IPInfo Lite MMDB 文件。由于 private、google 类别不属于国家/地区类别，无法补全额外信息。
   }
 }
 ```

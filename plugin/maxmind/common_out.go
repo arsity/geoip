@@ -267,6 +267,9 @@ func (g *GeoLite2CountryMMDBOut) GetExtraInfo() (map[string]any, error) {
 				return nil, err
 			}
 			countryCode := strings.ToUpper(strings.TrimSpace(record.CountryCode))
+			if countryCode == "" {
+				continue
+			}
 			if _, found := infoList[countryCode]; !found {
 				record.ASN = ""
 				record.ASName = ""

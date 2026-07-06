@@ -48,8 +48,8 @@ jobs:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
         run: |
           mkdir -p output ipinfo
-          curl -L "https://ipinfo.io/data/ipinfo_lite.csv.gz?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.csv.gz
-          curl -L "https://ipinfo.io/data/ipinfo_lite.mmdb?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.mmdb
+          curl -fL "https://ipinfo.io/data/ipinfo_lite.csv.gz?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.csv.gz
+          curl -fL "https://ipinfo.io/data/ipinfo_lite.mmdb?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.mmdb
 
       - name: Prepare IPInfo Lite databases
         run: |

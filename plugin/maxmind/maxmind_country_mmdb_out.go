@@ -73,9 +73,8 @@ func (g *GeoLite2CountryMMDBOut) Output(container lib.Container) error {
 		dbLanguages = []string{"de", "en", "es", "fr", "ja", "pt-BR", "ru", "zh-CN", "fa", "ko"}
 
 	case TypeIPInfoCountryMMDBOut:
-		dbName = "IPInfo-Lite"
-		dbDesc = "Customized IPInfo Lite database"
-		recordSize = 32
+		dbName = "GeoLite2-Country"
+		dbDesc = "Customized GeoLite2 Country database using IPInfo Lite source"
 	}
 
 	writer, err := mmdbwriter.New(
@@ -194,7 +193,9 @@ func (g *GeoLite2CountryMMDBOut) marshalData(writer *mmdbwriter.Tree, entry *lib
 
 		case TypeIPInfoCountryMMDBOut:
 			record = mmdbtype.Map{
-				"country_code": mmdbtype.String(entry.GetName()),
+				"country": mmdbtype.Map{
+					"iso_code": mmdbtype.String(entry.GetName()),
+				},
 			}
 
 		default:
@@ -339,17 +340,33 @@ func (g *GeoLite2CountryMMDBOut) marshalData(writer *mmdbwriter.Tree, entry *lib
 				log.Printf("⚠️ [type %s | action %s] not found extra info for list %s\n", g.Type, g.Action, entry.GetName())
 
 				record = mmdbtype.Map{
-					"country_code": mmdbtype.String(entry.GetName()),
+					"country": mmdbtype.Map{
+						"iso_code": mmdbtype.String(entry.GetName()),
+					},
+				}
+			} else if info.ContinentCode != "" {
+				record = mmdbtype.Map{
+					"continent": mmdbtype.Map{
+						"names": mmdbtype.Map{
+							"en": mmdbtype.String(info.Continent),
+						},
+						"code": mmdbtype.String(info.ContinentCode),
+					},
+					"country": mmdbtype.Map{
+						"names": mmdbtype.Map{
+							"en": mmdbtype.String(info.Country),
+						},
+						"iso_code": mmdbtype.String(entry.GetName()),
+					},
 				}
 			} else {
 				record = mmdbtype.Map{
-					"as_domain":      mmdbtype.String(info.ASDomain),
-					"as_name":        mmdbtype.String(info.ASName),
-					"asn":            mmdbtype.String(info.ASN),
-					"continent":      mmdbtype.String(info.Continent),
-					"continent_code": mmdbtype.String(info.ContinentCode),
-					"country":        mmdbtype.String(info.Country),
-					"country_code":   mmdbtype.String(entry.GetName()),
+					"country": mmdbtype.Map{
+						"names": mmdbtype.Map{
+							"en": mmdbtype.String(info.Country),
+						},
+						"iso_code": mmdbtype.String(entry.GetName()),
+					},
 				}
 			}
 

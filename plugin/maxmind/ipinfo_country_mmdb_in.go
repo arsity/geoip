@@ -13,7 +13,7 @@ which make it possible to support more formats for the project.
 
 const (
 	TypeIPInfoCountryMMDBIn = "ipinfoCountryMMDB"
-	DescIPInfoCountryMMDBIn = "Convert IPInfo country mmdb database to other formats"
+	DescIPInfoCountryMMDBIn = "Convert IPInfo Lite mmdb database to other formats"
 )
 
 func init() {
