@@ -62,9 +62,12 @@ This project releases various formats of GeoIP files automatically every day, an
   - `geoip:fastly`（`GEOIP,FASTLY`）
   - `geoip:google`（`GEOIP,GOOGLE`）
   - `geoip:netflix`（`GEOIP,NETFLIX`）
+  - `geoip:spotify`（`GEOIP,SPOTIFY`）
   - `geoip:telegram`（`GEOIP,TELEGRAM`）
   - `geoip:twitter`（`GEOIP,TWITTER`）
   - `geoip:tor`（`GEOIP,TOR`）
+
+其中 Spotify 类别包含 RIPE Database 登记给 Spotify AB / Spotify Technology S.A. 的 IP 段，并使用 IPInfo 元数据和 `AS8403` 作为补充。
 
 ## 下载地址与使用方法
 
@@ -271,6 +274,9 @@ proxy(geoip:us)
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/dat/netflix.dat](https://raw.githubusercontent.com/arsity/geoip/release/dat/netflix.dat)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/netflix.dat](https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/netflix.dat)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/dat/spotify.dat](https://raw.githubusercontent.com/arsity/geoip/release/dat/spotify.dat)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/spotify.dat](https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/spotify.dat)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/dat/telegram.dat](https://raw.githubusercontent.com/arsity/geoip/release/dat/telegram.dat)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/telegram.dat](https://cdn.jsdelivr.net/gh/arsity/geoip@release/dat/telegram.dat)
@@ -499,6 +505,9 @@ GEOIP,CN,policy,no-resolve
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/srs/netflix.srs](https://raw.githubusercontent.com/arsity/geoip/release/srs/netflix.srs)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/netflix.srs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/netflix.srs)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/srs/spotify.srs](https://raw.githubusercontent.com/arsity/geoip/release/srs/spotify.srs)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/spotify.srs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/spotify.srs)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/srs/telegram.srs](https://raw.githubusercontent.com/arsity/geoip/release/srs/telegram.srs)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/telegram.srs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/srs/telegram.srs)
@@ -611,6 +620,9 @@ rules:
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/mrs/netflix.mrs](https://raw.githubusercontent.com/arsity/geoip/release/mrs/netflix.mrs)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/netflix.mrs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/netflix.mrs)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/mrs/spotify.mrs](https://raw.githubusercontent.com/arsity/geoip/release/mrs/spotify.mrs)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/spotify.mrs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/spotify.mrs)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/mrs/telegram.mrs](https://raw.githubusercontent.com/arsity/geoip/release/mrs/telegram.mrs)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/telegram.mrs](https://cdn.jsdelivr.net/gh/arsity/geoip@release/mrs/telegram.mrs)
@@ -723,6 +735,9 @@ rules:
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/netflix.txt](https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/netflix.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/netflix.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/netflix.txt)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/spotify.txt](https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/spotify.txt)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/spotify.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/spotify.txt)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/telegram.txt](https://raw.githubusercontent.com/arsity/geoip/release/clash/ipcidr/telegram.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/telegram.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/clash/ipcidr/telegram.txt)
@@ -819,6 +834,9 @@ RULE-SET,https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/telegram.txt,PRO
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/surge/netflix.txt](https://raw.githubusercontent.com/arsity/geoip/release/surge/netflix.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/netflix.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/netflix.txt)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/surge/spotify.txt](https://raw.githubusercontent.com/arsity/geoip/release/surge/spotify.txt)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/spotify.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/spotify.txt)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/surge/telegram.txt](https://raw.githubusercontent.com/arsity/geoip/release/surge/telegram.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/telegram.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/telegram.txt)
@@ -903,6 +921,9 @@ RULE-SET,https://cdn.jsdelivr.net/gh/arsity/geoip@release/surge/telegram.txt,PRO
 - **netflix**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/text/netflix.txt](https://raw.githubusercontent.com/arsity/geoip/release/text/netflix.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/netflix.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/netflix.txt)
+- **spotify**：
+  - [https://raw.githubusercontent.com/arsity/geoip/release/text/spotify.txt](https://raw.githubusercontent.com/arsity/geoip/release/text/spotify.txt)
+  - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/spotify.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/spotify.txt)
 - **telegram**：
   - [https://raw.githubusercontent.com/arsity/geoip/release/text/telegram.txt](https://raw.githubusercontent.com/arsity/geoip/release/text/telegram.txt)
   - [https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/telegram.txt](https://cdn.jsdelivr.net/gh/arsity/geoip@release/text/telegram.txt)

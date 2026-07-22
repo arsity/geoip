@@ -104,6 +104,32 @@
       }
     },
     {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "spotify",
+        "ipOrCIDR": [
+          "78.31.8.0/21",
+          "192.165.160.0/22",
+          "193.181.4.0/22",
+          "193.181.180.0/22",
+          "193.182.8.0/21",
+          "193.234.240.0/22",
+          "193.235.232.0/22",
+          "194.68.28.0/22",
+          "194.68.176.0/22",
+          "194.71.148.0/22",
+          "194.71.232.0/22",
+          "194.103.36.0/22",
+          "194.132.152.0/22",
+          "194.132.168.0/22",
+          "194.132.176.0/22",
+          "194.132.196.0/22",
+          "194.132.204.0/22"
+        ]
+      }
+    },
+    {
       "type": "ipinfoLiteASNCSV",
       "action": "add",
       "args": {
@@ -114,6 +140,7 @@
           "fastly": ["fastly.com"],
           "google": ["gfiber.com", "google.ch", "google.com"],
           "netflix": ["netflix.com"],
+          "spotify": ["spotify.com"],
           "telegram": ["telegram.org"],
           "twitter": ["twitter.com", "x.com"]
         },
@@ -180,6 +207,7 @@
             "AS139070"
           ],
           "netflix": ["AS55095", "AS40027", "AS394406", "AS2906"],
+          "spotify": ["AS8403"],
           "telegram": ["AS62041", "AS62014", "AS59930", "AS44907", "AS211157"],
           "twitter": ["AS63179", "AS54888", "AS35995", "AS13414"]
         }
@@ -221,6 +249,7 @@
           "fastly",
           "google",
           "netflix",
+          "spotify",
           "telegram",
           "twitter",
           "tor"
@@ -258,6 +287,7 @@
           "fastly",
           "google",
           "netflix",
+          "spotify",
           "telegram",
           "twitter",
           "tor",
@@ -280,6 +310,7 @@
           "fastly",
           "google",
           "netflix",
+          "spotify",
           "telegram",
           "twitter",
           "tor"
@@ -309,6 +340,7 @@
           "fastly",
           "google",
           "netflix",
+          "spotify",
           "telegram",
           "twitter",
           "tor"
