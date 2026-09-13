@@ -1,7 +1,6 @@
 package maxmind
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -181,8 +180,15 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 	}
 	defer f.Close()
 
-	reader := csv.NewReader(f)
-	reader.Read() // skip header
+	required := []string{"network", "asn"}
+	if len(g.MetadataList) > 0 {
+		required = append(required, "as_name", "as_domain")
+	}
+	reader, err := newIPInfoLiteCSVReader(f, required...)
+	if err != nil {
+		return err
+	}
+	defer reader.report(g.Type)
 
 	for {
 		record, err := reader.Read()
@@ -193,16 +199,8 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 			return err
 		}
 
-		// IPInfo Lite CSV reference:
-		// network,country,country_code,continent,continent_code,asn,as_name,as_domain
-		// 1.0.0.0/24,Australia,AU,Oceania,OC,AS13335,Cloudflare Inc,cloudflare.com
-
-		if len(record) < 6 {
-			return fmt.Errorf("❌ [type %s | action %s] invalid record: %v", g.Type, g.Action, record)
-		}
-
 		// IPInfo already has "AS" prefix (e.g., "AS13335"); strip it for wantList lookup
-		asnRaw := strings.TrimSpace(record[5])
+		asnRaw := record.ASN
 		if asnRaw == "" {
 			continue
 		}
@@ -212,7 +210,7 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 		// Hard-coded ASN lists are only used as a fallback when metadata does not match.
 		if metadataLists := g.matchMetadata(record); len(metadataLists) > 0 {
 			for _, listName := range metadataLists {
-				if err := addPrefixToEntries(entries, listName, strings.TrimSpace(record[0])); err != nil {
+				if err := addPrefixToEntries(entries, listName, record.Network); err != nil {
 					return err
 				}
 			}
@@ -221,7 +219,7 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 
 		if len(g.Want) == 0 { // it means user wants all ASNs
 			asn := strings.ToUpper(asnRaw) // default list name is in "AS12345" format
-			if err := addPrefixToEntries(entries, asn, strings.TrimSpace(record[0])); err != nil {
+			if err := addPrefixToEntries(entries, asn, record.Network); err != nil {
 				return err
 			}
 			continue
@@ -230,7 +228,7 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 		// it means user wants specific ASNs or customized lists with specific ASNs
 		if listArr, found := g.Want[asnBare]; found {
 			for _, listName := range listArr {
-				if err := addPrefixToEntries(entries, listName, strings.TrimSpace(record[0])); err != nil {
+				if err := addPrefixToEntries(entries, listName, record.Network); err != nil {
 					return err
 				}
 			}
@@ -240,19 +238,13 @@ func (g *IPInfoLiteASNCSVIn) process(file string, entries map[string]*lib.Entry)
 	return nil
 }
 
-func (g *IPInfoLiteASNCSVIn) matchMetadata(record []string) []string {
+func (g *IPInfoLiteASNCSVIn) matchMetadata(record ipinfoLiteCSVRecord) []string {
 	if len(g.MetadataList) == 0 {
 		return nil
 	}
 
-	asName := ""
-	if len(record) > 6 {
-		asName = strings.ToLower(strings.TrimSpace(record[6]))
-	}
-	asDomain := ""
-	if len(record) > 7 {
-		asDomain = strings.ToLower(strings.TrimSpace(record[7]))
-	}
+	asName := strings.ToLower(record.ASName)
+	asDomain := strings.ToLower(record.ASDomain)
 	if asName == "" && asDomain == "" {
 		return nil
 	}
@@ -266,6 +258,7 @@ func (g *IPInfoLiteASNCSVIn) matchMetadata(record []string) []string {
 			}
 		}
 	}
+
 	slices.Sort(matched)
 
 	return matched
