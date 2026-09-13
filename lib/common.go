@@ -1,38 +1,24 @@
 package lib
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"io"
-	"net/http"
 )
 
 func GetRemoteURLContent(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	reader, err := GetRemoteURLReader(url)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to get remote content -> %s: %s", url, resp.Status)
-	}
-
-	return io.ReadAll(resp.Body)
+	defer reader.Close()
+	return io.ReadAll(reader)
 }
 
+// GetRemoteURLReader returns a complete, retried download. Callers must close
+// the reader to release and remove its temporary backing file.
 func GetRemoteURLReader(url string) (io.ReadCloser, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
-		return nil, fmt.Errorf("failed to get remote content -> %s: %s", url, resp.Status)
-	}
-
-	return resp.Body, nil
+	return defaultRemoteDownloader.get(context.Background(), url)
 }
 
 func GetIgnoreIPType(onlyIPType IPType) IgnoreIPOption {

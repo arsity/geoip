@@ -1,7 +1,6 @@
 package maxmind
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -136,8 +135,11 @@ func (g *IPInfoLiteCountryCSVIn) process(file string, entries map[string]*lib.En
 	}
 	defer f.Close()
 
-	reader := csv.NewReader(f)
-	reader.Read() // skip header
+	reader, err := newIPInfoLiteCSVReader(f, "network", "country_code")
+	if err != nil {
+		return err
+	}
+	defer reader.report(g.Type)
 
 	for {
 		record, err := reader.Read()
@@ -148,15 +150,7 @@ func (g *IPInfoLiteCountryCSVIn) process(file string, entries map[string]*lib.En
 			return err
 		}
 
-		// IPInfo Lite CSV reference:
-		// network,country,country_code,continent,continent_code,asn,as_name,as_domain
-		// 1.0.0.0/24,Australia,AU,Oceania,OC,AS13335,Cloudflare Inc,cloudflare.com
-
-		if len(record) < 3 {
-			return fmt.Errorf("❌ [type %s | action %s] invalid record: %v", g.Type, g.Action, record)
-		}
-
-		countryCode := strings.ToUpper(strings.TrimSpace(record[2]))
+		countryCode := record.CountryCode
 		if countryCode == "" {
 			continue
 		}
@@ -165,7 +159,7 @@ func (g *IPInfoLiteCountryCSVIn) process(file string, entries map[string]*lib.En
 			continue
 		}
 
-		cidrStr := strings.ToLower(strings.TrimSpace(record[0]))
+		cidrStr := strings.ToLower(record.Network)
 		entry, got := entries[countryCode]
 		if !got {
 			entry = lib.NewEntry(countryCode)

@@ -20,11 +20,36 @@ on:
       - "LICENSE*"
       - "*.md"
 permissions:
-  contents: write
+  contents: read
 jobs:
+  test:
+    name: Offline regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: ./go.mod
+          cache-dependency-path: ./go.sum
+      - name: Test converters, network failures, and output compatibility
+        run: |
+          go test -race -count=1 ./...
+          go vet ./...
+      - name: Test verified IPinfo downloads without credentials
+        run: |
+          bash -n scripts/download-ipinfo.sh
+          python3 -m unittest discover -s scripts -p 'test_*.py' -v
+
   build:
     name: Build
+    needs: test
+    # External fork PRs only run offline tests; they receive no IPinfo secret.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v7
@@ -43,13 +68,12 @@ jobs:
           echo "RELEASE_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
         shell: bash
 
-      - name: Download IPInfo Lite databases
+      - name: Download and verify IPInfo Lite databases
         env:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
         run: |
-          mkdir -p output ipinfo
-          curl -fL "https://ipinfo.io/data/ipinfo_lite.csv.gz?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.csv.gz
-          curl -fL "https://ipinfo.io/data/ipinfo_lite.mmdb?token=${IPINFO_TOKEN}" -o ./ipinfo/ipinfo_lite.mmdb
+          mkdir -p output
+          bash scripts/download-ipinfo.sh ./ipinfo
 
       - name: Prepare IPInfo Lite databases
         run: |
@@ -61,6 +85,11 @@ jobs:
         run: |
           go build ./
           ./geoip convert -c ./config.json
+
+      - name: Verify output manifest and lookup semantics
+        env:
+          GEOIP_VERIFY_OUTPUT_DIR: ${{ github.workspace }}/output
+        run: go test . -run '^TestReleaseOutputs$' -count=1 -v
 
       - name: Verify mmdb files
         run: |
@@ -86,6 +115,9 @@ jobs:
 
       - name: Git push assets to "release" branch
         if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           cd output || exit 1
           git init
@@ -93,8 +125,9 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b release
           git add -A
-          git commit -m "${{ env.RELEASE_NAME }}"
-          git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git commit -m "${RELEASE_NAME}"
+          gh auth setup-git --hostname github.com
+          git remote add geoip "https://github.com/${REPOSITORY}.git"
           git push -f -u geoip release
 
       - name: Purge jsdelivr CDN
