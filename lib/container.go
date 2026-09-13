@@ -50,13 +50,16 @@ func (c *container) Len() int {
 }
 
 func (c *container) Loop() <-chan *Entry {
-	ch := make(chan *Entry, 300)
-	go func() {
-		for _, val := range c.entries {
-			ch <- val
-		}
-		close(ch)
-	}()
+	// Snapshot the entry pointers before returning: callers such as Cutter
+	// remove map entries while consuming this channel. Iterating the live map
+	// in a producer goroutine races with those removals. A complete buffer also
+	// avoids a stranded producer when a caller stops consuming early.
+	// This does not make concurrent calls to other Container methods safe.
+	ch := make(chan *Entry, len(c.entries))
+	for _, val := range c.entries {
+		ch <- val
+	}
+	close(ch)
 	return ch
 }
 
