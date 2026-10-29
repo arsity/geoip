@@ -37,7 +37,7 @@
       "action": "add",
       "args": {
         "name": "tor",
-        "uri": "https://check.torproject.org/torbulkexitlist"
+        "uri": "./tor/torbulkexitlist"
       }
     },
     {
