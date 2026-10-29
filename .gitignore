@@ -71,6 +71,7 @@ data/
 geolite2/
 db-ip/
 ipinfo/
+tor/
 output/
 geoip
 *.dat

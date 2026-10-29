@@ -42,9 +42,12 @@ func TestFixturePipeline(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Chdir(t.TempDir())
-	if err := os.MkdirAll("ipinfo", 0700); err != nil {
-		t.Fatal(err)
+	for _, dir := range []string{"ipinfo", "tor"} {
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			t.Fatal(err)
+		}
 	}
+	writeFixture(t, "tor/torbulkexitlist", "8.8.8.8\n")
 	writeFixture(t, "ipinfo/ipinfo_lite.csv", "network,country,country_code,continent,continent_code,asn,as_name,as_domain\n"+
 		"1.0.0.0/24,Australia,AU,Oceania,OC,AS13335,Cloudflare,cloudflare.com\n"+
 		"8.8.8.0/24,United States,US,North America,NA,AS15169,Google,google.com\n"+
@@ -72,8 +75,6 @@ func TestFixturePipeline(t *testing.T) {
 			if input.Args["onlyIPType"] == "ipv6" {
 				content = "240e::/32\n"
 			}
-		case "text/tor":
-			content = "8.8.8.8\n"
 		case "text/cloudflare":
 			content = "1.1.1.0/24\n10.0.0.0/24\n"
 			if strings.HasSuffix(uri, "ips-v6") {
