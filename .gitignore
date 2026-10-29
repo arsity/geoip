@@ -72,6 +72,7 @@ geolite2/
 db-ip/
 ipinfo/
 tor/
+__pycache__/
 output/
 geoip
 *.dat
