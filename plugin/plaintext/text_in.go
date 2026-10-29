@@ -3,7 +3,6 @@ package plaintext
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -166,15 +165,11 @@ func (t *text_in) walkLocalFile(path, name string, entries map[string]*lib.Entry
 }
 
 func (t *text_in) walkRemoteFile(url, name string, entries map[string]*lib.Entry) error {
-	resp, err := http.Get(url)
+	body, err := lib.GetRemoteURLReader(url)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("failed to get remote file %s, http status code %d", url, resp.StatusCode)
-	}
+	defer body.Close()
 
 	name = strings.ToUpper(name)
 
@@ -183,7 +178,7 @@ func (t *text_in) walkRemoteFile(url, name string, entries map[string]*lib.Entry
 	}
 
 	entry := lib.NewEntry(name)
-	if err := t.scanFile(resp.Body, entry); err != nil {
+	if err := t.scanFile(body, entry); err != nil {
 		return err
 	}
 

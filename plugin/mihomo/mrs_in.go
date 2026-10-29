@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -241,17 +240,13 @@ func (m *mrs_in) walkLocalFile(path, name string, entries map[string]*lib.Entry)
 }
 
 func (m *mrs_in) walkRemoteFile(url, name string, entries map[string]*lib.Entry) error {
-	resp, err := http.Get(url)
+	body, err := lib.GetRemoteURLReader(url)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer body.Close()
 
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("failed to get remote file %s, http status code %d", url, resp.StatusCode)
-	}
-
-	if err := m.generateEntries(name, resp.Body, entries); err != nil {
+	if err := m.generateEntries(name, body, entries); err != nil {
 		return err
 	}
 
