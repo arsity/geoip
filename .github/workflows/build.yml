@@ -135,7 +135,7 @@ jobs:
         run: |
           cd output || exit 1
           for file in $(ls); do
-            curl -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@release/${file}"
+            curl -i --retry 3 "https://purge.jsdelivr.net/gh/${{ github.repository }}@release/${file}"
           done
 
       - name: Remove some files to avoid publishing to GitHub release

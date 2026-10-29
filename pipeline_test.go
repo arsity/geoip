@@ -156,7 +156,7 @@ func writeFixture(t *testing.T, path, data string) {
 
 func writeMetadataFixture(t *testing.T) {
 	t.Helper()
-	writer, err := mmdbwriter.New(mmdbwriter.Options{DatabaseType: "IPinfo-Lite", IncludeReservedNetworks: true})
+	writer, err := mmdbwriter.New(mmdbwriter.Options{DatabaseType: "IPinfo-Lite", Description: map[string]string{"en": "IPinfo Lite fixture"}, IncludeReservedNetworks: true})
 	if err != nil {
 		t.Fatal(err)
 	}
